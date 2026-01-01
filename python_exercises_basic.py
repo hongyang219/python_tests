@@ -7,6 +7,8 @@ import time
 import traceback
 from datetime import datetime
 import inspect
+import math
+from collections import *
 
 
 class ListNode:
@@ -121,7 +123,7 @@ class BasicRunner:
 
 #   lc58.求包含空格的字符串的最后一个单词的长度
     def lengthOfLastWord(self, s: str) -> int:
-        # print(s.strip())
+        print(s.strip())
         return len(s.strip().split(" ")[-1])
 
 #   lc66.求数组形式代表的整数+1的值
@@ -137,12 +139,20 @@ class BasicRunner:
             digits_plus.append(int(n))
         return digits_plus
 
+#   lc.231.判断整数是否是x的幂
+    def isPowerOf(self, n: int = 243, x: int = 3) -> bool:
+        if n<=0:
+            return False
+        power = math.log(n, x)
+        print(power)
+        print(int(power))
+        return False if power-int(power)>0 else True
 
 
 tc = BasicRunner()
+# tc.isPowerOf()
 # tc.lengthOfLastWord("hello     world     ")
 # tc.list_to_dict()
-
 # d1 = {'c': 333, 'a': 1, 'b': 22}
 # tc.dict_sort(d=d1)
 # d2 = tc.dict_reverse_kv(d=d1)
@@ -164,16 +174,3 @@ tc = BasicRunner()
 # sorted_str = tc.str_sort(dedup_str)
 # print(sorted_str)
 # print(tc.str_count('baanaanaa'))
-
-
-
-
-
-
-
-
-
-
-
-
-

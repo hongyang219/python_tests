@@ -1,7 +1,5 @@
 from os import remove
-
 from jupyter_core.version import pattern
-
 from python_exercises_basic import *
 
 
@@ -283,20 +281,211 @@ class CodeRunner(BasicRunner):
         else:
             return float(nums3[int(o/2)])
 
+#   lc.5 最长回文子串
+    @notify()
+    def longestPalindrome(self, s: str = 'aaabbaabbabadccchhhjiosd334455655443hgfwuoiejrweoif') -> str:
+        '''
+        Be careful!!!
+        In below case, complexity is O(N3)...
+        Execution may result in TIMEOUT in leetcode(9000~10000 ms...)
+        Also print() will EXCEED output
+        "xaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjjkkkkkkkkkk
+        llllllllllmmmmmmmmmmnnnnnnnnnnooooooooooppppppppppqqqqqqqqqqrrrrrrrrrrssssssssssttttttttttuuuuuuuuuuvvvvvvvvvv
+        wwwwwwwwwwxxxxxxxxxxyyyyyyyyyyzzzzzzzzzzyyyyyyyyyyxxxxxxxxxxwwwwwwwwwwvvvvvvvvvvuuuuuuuuuuttttttttttssssssssss
+        rrrrrrrrrrqqqqqqqqqqppppppppppoooooooooonnnnnnnnnnmmmmmmmmmmllllllllllkkkkkkkkkkjjjjjjjjjjiiiiiiiiiihhhhhhhhhh
+        ggggggggggffffffffffeeeeeeeeeeddddddddddccccccccccbbbbbbbbbbaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeee
+        ffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjjkkkkkkkkkkllllllllllmmmmmmmmmmnnnnnnnnnnoooooooooopppppppppp
+        qqqqqqqqqqrrrrrrrrrrssssssssssttttttttttuuuuuuuuuuvvvvvvvvvvwwwwwwwwwwxxxxxxxxxxyyyyyyyyyyzzzzzzzzzzyyyyyyyyyy
+        xxxxxxxxxxwwwwwwwwwwvvvvvvvvvvuuuuuuuuuuttttttttttssssssssssrrrrrrrrrrqqqqqqqqqqppppppppppoooooooooonnnnnnnnnn
+        mmmmmmmmmmllllllllllkkkkkkkkkkjjjjjjjjjjiiiiiiiiiihhhhhhhhhhggggggggggffffffffffeeeeeeeeeeddddddddddccccccccccbbbbbbbbbbaaaa"
+        '''
+        temp = ""
+        i = 0
+        # Calculate all palindrome strings
+        while i <= len(s):
+            stack = ""
+            for j in range(i, len(s)):
+                stack += s[j]
+                if stack == stack[::-1]:
+                    temp = max(temp, stack, key=len)
+            i += 1
+        return temp
+
+#   lc.67 二进制字符串求和
+    @notify()
+    def addBinary(self, a: str='10101', b: str='1011') -> str:
+        la = a[::-1]
+        lb = b[::-1]
+        # 确保la是较长的字符串
+        if len(la) < len(lb):
+            la, lb = lb, la
+        # 补零使两个字符串长度相同
+        lb += '0' * (len(la) - len(lb))
+
+        result = []
+        carry = 0
+
+        for i in range(len(la)):
+            # 计算当前位的和/进位
+            total = int(la[i]) + int(lb[i]) + carry
+            cur = total % 2             # 当前位
+            carry = total // 2          # 进位
+            result.append(str(cur))
+
+        # 别忘了补上最后的进位
+        if carry:
+            result.append(str(carry))
+
+        # 反转结果并返回
+        bin_str = ''.join(reversed(result))
+
+        # 确保没有前导零（除非结果是"0"）
+        if bin_str == "0":
+            return bin_str
+        # 去除可能的前导零
+        return bin_str.lstrip('0') or "0"
+
+#   lc.6 Z字形
+    @notify()
+    def convert_to_Zstring(self, s: str, numRows: int) -> str:
+        stack = []
+        period = numRows * 2 - 2    # 每个“Z”的“上半部分”的周期，包含一个竖向排列和一个斜向排列
+
+        if numRows == 1:
+            return s
+        temp = ""
+
+        for i in range(len(s)):
+            # 计算当前字符在Z周期中的相对位置
+            pos = i % period
+            # print(pos)
+            # 竖向排列
+            if pos < numRows:
+                temp += s[i]
+                if len(temp) % numRows == 0:
+                    stack.append(temp)
+                    temp = ""
+            # 斜向排列的情况，需要补空格
+            else:
+                down_blank = ' ' * (pos-numRows+1)          # 超过竖向排列(行数)的距离
+                up_blank = ' ' * (period-pos)               # 距離周期末端的距离
+                stack.append(up_blank + s[i] + down_blank)
+        # 如果循环末尾还有字符未处理，补空格，否则下一部会list out of range
+        if len(temp)>0:
+            stack.append(temp + ' '*(numRows-len(temp)))
+        print(stack)
+
+        # 逐行读取最终结果并去空格
+        result = ""
+        i = 0
+        while i < numRows:
+            for item in stack:
+                result += item[i]
+            i+=1
+
+        return result.replace(' ', '')
+
+#   lc.? 计算平方根
+    def mySqrt(self, x: int) -> int:
+        i=int(0)
+        while (i*i)<=x:
+            # print(i, i*i)
+            i+=1
+        i = i-1
+        # print(f"Integer:{i}")
+
+        # 原题要求计算整数部分就可以了。。多写了一步计算到第一位小数的
+        # d=float(i+0.1)
+        # while (d*d)<=x:
+        #     print(d, d*d)
+        #     d+=0.1
+        # d = d - 0.1
+        # print(f"Decimal:{d}")
+        return int(i)
+
+#   lc.1512 求数组中相同的数对（好数对）的数量
+    @notify()
+    def numIdenticalPairs(self, nums: List[int]=[1,2,3,1,1,3]) -> int:
+        # 找出所有不唯一的数对，放到一个数组
+        cnt = dict(Counter(nums))
+        print(cnt)
+        lst = []
+        for key in cnt:
+            # print(cnt[key])
+            if cnt[key]>1:
+                lst.append(cnt[key])
+        print(lst)
+        # 因为是每次取两个元素，可以用组合计算所有项的组合数(C n|2)，再求和
+        result = 0
+        for n in lst:
+            result+=n*(n-1)/2
+        return int(result)
+
+#   lc.49 找出数组中的异位词：包含相同字母组合但是排列不同的单词
+    @notify()
+    def groupAnagrams(self, strs: List[str] = ["eat", "tea", "tan", "ate", "nat", "bat"]) -> List[List[str]]:
+        # 使用defaultdict性能更优，也无需进行if sorted_s not in h的判断
+        h = defaultdict(list)
+        for s in strs:
+            # 将排序后的字符作为键值，如果有相同排列的只要append键值对应的数组中即可
+            # sorted_s = "".join(sorted(s))
+            h[tuple(sorted(s))].append(s) # 可以直接使用tuple作为键值，省略排序
+        print(h)
+        return list(h.values())
+        # h = {}
+        # for s in strs:
+        #     sorted_s = "".join(sorted(s))
+        #     if sorted_s not in h:
+        #         h[sorted_s] = [s]
+        #     else:
+        #         h[sorted_s].append(s)
+        # return list(h.values())
+
+#   lc.128 最长连续序列
+    @notify()
+    def longestConsecutive(self, nums: List[int] = [100,4,200,1,3,2,1]) -> int:
+        if len(nums) == 0:
+            return 0
+        # 先把数组排序好
+        # 如果这时直接去重 sorted(set(nums), key=int)会超时(?
+        sorted_nums = sorted(nums, key=int)
+        print(sorted_nums)
+
+        # 用集合储存临时序列，这样在有连续相同数字的情况下可以默认去重
+        temp = set()
+        result = []
+        # 判断n-1是否在临时序列中，如果中断则储存上一个序列。并重置集合。
+        for n in sorted_nums:
+            if n - 1 in temp:
+                temp.add(n)
+            else:
+                if temp:
+                    result.append(temp)
+                temp = set()
+                temp.add(n)
+        result.append(temp)
+
+        print(result)
+        return len(max(result, key=len))
 
 
-
-tc_adv = CodeRunner()
-tc_adv.findMedianSortedArrays(nums1=[1,2,5], nums2=[4,4])
-# print(tc_adv.remove_camel("abc==aAa==defghij#@$%^&*(ZZZ)_klahHhAamnop==bBb==777qrstu~~ppp~~vwxyz"))
-# tc_adv.lengthOfLongestSubstring("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ abc")
-# tc_adv.searchInsert()
-# tc_adv.unique_char()
-# f = tc_adv.fibonacci()
+adv = CodeRunner()
+adv.longestConsecutive()
+# adv.groupAnagrams()
+# adv.numIdenticalPairs([1,2,3,1,1,3])
+# adv.mySqrt(2052228396)
+# adv.convert_to_Zstring("PAYPALISHIRING", 4)
+# adv.addBinary()
+# adv.longestPalindrome()
+# adv.findMedianSortedArrays(nums1=[1,2,5], nums2=[4,4])
+# print(adv.remove_camel("abc==aAa==defghij#@$%^&*(ZZZ)_klahHhAamnop==bBb==777qrstu~~ppp~~vwxyz"))
+# adv.lengthOfLongestSubstring("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ abc")
+# adv.searchInsert()
+# adv.unique_char()
+# f = adv.fibonacci()
 # assert f==20, "Not expect value"
-# tc_adv.removeDuplicates([0,0,1,1,1,2,2,3,3,4])
-# tc_adv.removeElement([0,0,1,1,1,2,2,3,3,4], 1)
-# tc_adv.strStr("hahasadnotsad", "sad")
-
+# adv.removeDuplicates([0,0,1,1,1,2,2,3,3,4])
+# adv.removeElement([0,0,1,1,1,2,2,3,3,4], 1)
+# adv.strStr("hahasadnotsad", "sad")
 
 
