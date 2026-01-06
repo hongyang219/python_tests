@@ -148,6 +148,24 @@ class BasicRunner:
         print(int(power))
         return False if power-int(power)>0 else True
 
+#   lc.283 把整数数组中的0移到末尾
+    def moveZeroes(self, nums: List[int]) -> None:
+        # Do not return anything, modify nums in-place instead.
+
+        # for i in range(len(nums)):
+        #     if nums[i] == 0:
+        #         nums.remove(nums[i])
+        #         nums.append(0)
+
+        stack1 = []
+        stack2 = []
+        for n in nums:
+            if n != 0:
+                stack1.append(n)
+            else:
+                stack2.append(n)
+        nums[:] = stack1 + stack2   # 因为原题无返回值，使用复制列表操作保证判题成功
+
 
 tc = BasicRunner()
 # tc.isPowerOf()

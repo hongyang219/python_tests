@@ -1,6 +1,6 @@
 from os import remove
-from jupyter_core.version import pattern
 from python_exercises_basic import *
+import matplotlib.pyplot as plt
 
 
 class CodeRunner(BasicRunner):
@@ -244,7 +244,7 @@ class CodeRunner(BasicRunner):
             # 字符串过长的时候打印会导致超出力扣输出限制
             # print(f"Cut head - {s}")
         print(stack)
-        return len(sorted(stack, key=len)[-1])
+        return len(max(stack,key=len))
 
 #   思科面试题1
     def remove_camel(self, s: str) -> str:
@@ -468,9 +468,98 @@ class CodeRunner(BasicRunner):
         print(result)
         return len(max(result, key=len))
 
+#   lc.11 最大面积（盛水）
+    @notify()
+    def maxArea(self, height: List[int] = [1,8,6,2,5,4,8,3,7]) -> int:
+        # 计算面积的闭包
+        def area(height: List[int], left: int, right: int) -> int:
+            return (right-left)*min(height[left], height[right])
+
+        # 绘制xy轴坐标系以及高度线的闭包
+        def plot_heights():
+            plt.figure(figsize=(8, 5))
+            plt.bar(range(len(height)), height, color='skyblue')
+            plt.xlabel('Index')
+            plt.ylabel('Height')
+            plt.title('Heights Visualization')
+            plt.grid(True, alpha=0.3)
+            plt.savefig('heights_plot.png')
+            plt.close()
+
+        # 在控制台输出同样效果的闭包
+        def print_heights_console():
+            print("Heights Visualization (Console):")
+            max_h = max(height) if height else 0
+            for level in range(max_h, 0, -1):
+                line = ""
+                for h in height:
+                    if h >= level:
+                        line += "█ "
+                    else:
+                        line += "  "
+                print(line.rstrip())
+            # 打印x轴
+            print("-" * (len(height) * 2))
+            indices = " ".join(str(i) for i in range(len(height)))
+            print(indices, '\n')
+            heights_str = " ".join(str(h) for h in height)
+
+        # 调用绘制闭包
+        # plot_heights()
+        print_heights_console()
+
+        # 指向数组两端的双指针
+        left, right = 0, len(height)-1
+        result = 0
+        while left<right:
+            result = max(area(height, left, right), result)
+            # 由于最大面积由高度较小的柱子决定，所以位移小的那根的指针就可以了
+            if height[left]<= height[right]:
+                # print("左边低，左指针右移")
+                left+=1
+            else:
+                # print("右边低，右指针左移")
+                right-=1
+
+        return result
+
+#   lc.15 求和为0且下标不同的三元数组
+    @notify()
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        print(nums)
+        n = len(nums)
+        result = []
+        for i in range(n-2):
+            # 如果当前值和上一轮值相同则跳过循环
+            if nums[i] == nums[i-1] and i>0:
+                continue
+
+            l, r = i+1, n-1
+
+            while l < r:
+                total = nums[i]+nums[l]+nums[r]
+                if total == 0:
+                    result.append([nums[i], nums[l], nums[r]])
+                # 跳过重复的第二个数
+                    while l < r and nums[l] == nums[l+1]:
+                        l += 1
+                # 跳过重复的第三个数
+                    while l < r and nums[r] == nums[r-1]:
+                        r -= 1
+                    l+=1
+                    r-=1
+                elif total > 0:
+                    r-=1
+                else:
+                    l+=1
+        return result
 
 adv = CodeRunner()
-adv.longestConsecutive()
+
+# adv.threeSum(lc15_testdata)
+# adv.maxArea()
+# adv.longestConsecutive()
 # adv.groupAnagrams()
 # adv.numIdenticalPairs([1,2,3,1,1,3])
 # adv.mySqrt(2052228396)
@@ -487,5 +576,3 @@ adv.longestConsecutive()
 # adv.removeDuplicates([0,0,1,1,1,2,2,3,3,4])
 # adv.removeElement([0,0,1,1,1,2,2,3,3,4], 1)
 # adv.strStr("hahasadnotsad", "sad")
-
-
