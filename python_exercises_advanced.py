@@ -1,6 +1,6 @@
 from os import remove
-from jupyter_core.version import pattern
 from python_exercises_basic import *
+import matplotlib.pyplot as plt
 
 
 class CodeRunner(BasicRunner):
@@ -244,7 +244,7 @@ class CodeRunner(BasicRunner):
             # 字符串过长的时候打印会导致超出力扣输出限制
             # print(f"Cut head - {s}")
         print(stack)
-        return len(sorted(stack, key=len)[-1])
+        return len(max(stack,key=len))
 
 #   思科面试题1
     def remove_camel(self, s: str) -> str:
@@ -468,9 +468,197 @@ class CodeRunner(BasicRunner):
         print(result)
         return len(max(result, key=len))
 
+#   lc.11 最大面积（盛水）
+    @notify()
+    def maxArea(self, height: List[int] = [1,8,6,2,5,4,8,3,7]) -> int:
+        # 计算面积的闭包
+        def area(height: List[int], left: int, right: int) -> int:
+            return (right-left)*min(height[left], height[right])
+
+        # 绘制xy轴坐标系以及高度线的闭包
+        def plot_heights():
+            plt.figure(figsize=(8, 5))
+            plt.bar(range(len(height)), height, color='skyblue')
+            plt.xlabel('Index')
+            plt.ylabel('Height')
+            plt.title('Heights Visualization')
+            plt.grid(True, alpha=0.3)
+            plt.savefig('heights_plot.png')
+            plt.close()
+
+        # 在控制台输出同样效果的闭包
+        def print_heights_console():
+            print("Heights Visualization (Console):")
+            max_h = max(height) if height else 0
+            for level in range(max_h, 0, -1):
+                line = ""
+                for h in height:
+                    if h >= level:
+                        line += "█ "
+                    else:
+                        line += "  "
+                print(line.rstrip())
+            # 打印x轴
+            print("-" * (len(height) * 2))
+            indices = " ".join(str(i) for i in range(len(height)))
+            print(indices, '\n')
+            heights_str = " ".join(str(h) for h in height)
+
+        # 调用绘制闭包
+        # plot_heights()
+        print_heights_console()
+
+        # 指向数组两端的双指针
+        left, right = 0, len(height)-1
+        result = 0
+        while left<right:
+            result = max(area(height, left, right), result)
+            # 由于最大面积由高度较小的柱子决定，所以位移小的那根的指针就可以了
+            if height[left]<= height[right]:
+                # print("左边低，左指针右移")
+                left+=1
+            else:
+                # print("右边低，右指针左移")
+                right-=1
+
+        return result
+
+#   lc.15 求和为0且下标不同的三元数组
+    @notify()
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        print(nums)
+        n = len(nums)
+        result = []
+        for i in range(n-2):
+            # 如果当前值和上一轮值相同则跳过循环
+            if nums[i] == nums[i-1] and i>0:
+                continue
+
+            l, r = i+1, n-1
+
+            while l < r:
+                total = nums[i]+nums[l]+nums[r]
+                if total == 0:
+                    result.append([nums[i], nums[l], nums[r]])
+                # 跳过重复的第二个数
+                    while l < r and nums[l] == nums[l+1]:
+                        l += 1
+                # 跳过重复的第三个数
+                    while l < r and nums[r] == nums[r-1]:
+                        r -= 1
+                    l+=1
+                    r-=1
+                elif total > 0:
+                    r-=1
+                else:
+                    l+=1
+        return result
+
+#   lc.438 返回字符串中所有字母异位词的首字母位置
+    @notify()
+    def findAnagrams(self, s: str="cbaebabacd", p: str="abc") -> List[int]:
+        lp = len(p)
+        if len(s)<lp:
+            return []
+        # 异位词字母相同且数量相同（顺序可忽略），因此使用Counter()同时存储字符和计数。
+        cnt_p = Counter(p)
+        cnt_wd = Counter()
+        result = []
+        # 使用滑动窗口，枚举之后窗口从左往右移动扫描并计数（右指针先进，先进先出）
+        for right, char in enumerate(s):
+            cnt_wd[char] += 1
+            left = right-lp+1
+            if left<0:
+                continue
+            if cnt_wd == cnt_p:
+                result.append(left)
+            # 左指针对应字符“移出”
+            cnt_wd[s[left]]-=1
+        return result
+
+#   lc.94 中序遍历二叉树，深度优先
+    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node) -> List[int]:
+            if not node:                # 1. 到达终点，返回
+                return                  # 注意，递归的return不会结束程序，只会结束当前调用，dfs(None) -> []
+            dfs(node.left)              # 2. 先探索整个左子树
+            result.append(node.val)     # 3. 访问当前节点（根）
+            dfs(node.right)             # 4. 再探索整个右子树
+
+        result = []
+        dfs(root)
+        return result
+
+#   lc.104 二叉树最大深度
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        # 闭包dfs，每次向下探索时传入上一层深度
+        def dfs(node: Optional[TreeNode], cnt):
+            if not node:
+                return
+            cnt+=1
+            nonlocal res                # nonlocal用于维护闭包外变量
+            res = max(res, cnt)
+            dfs(node.left, cnt)
+            dfs(node.right, cnt)
+
+        res = 0
+        dfs(root,0)
+        return res
+
+        # 等同于如下写法：
+        # return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1 if root else 0
+
+#   lc.560 和为k的子数组
+    @notify()
+    def subarraySum(self, nums: List[int]=[-1,-1,1], k: int=0) -> int:
+        # 建立前缀和字典，初始值s[0]=0
+        pre_cnt = defaultdict(int)
+        pre_sum = 0
+        res = 0
+
+        for n in nums:
+            # 维护∑。如果满足∑=k的子数组存在，则字典中应有满足当前【前缀和-k】的item
+            pre_cnt[pre_sum] += 1
+            pre_sum += n
+            res += pre_cnt[pre_sum-k]
+
+        print(pre_cnt)
+        return res
+
+#   lc.53 最大子数组和
+    @notify()
+    def maxSubArray(self, nums: List[int]=[-2,1,-3,4,-1,2,1,-5,4]) -> int:
+        # 在遍历前缀和的同时，减去最小前缀和，即是最大的子数组和
+        ans = float('-inf') # Python内置的负无穷
+        pre_sum = 0
+        pre_min = 0
+
+        for n in nums:
+            pre_sum += n
+            ans = max(pre_sum - pre_min, ans)
+            pre_min = min(pre_min, pre_sum)
+        return ans
+
+#   lc.121 买卖股票最大收益
+    @notify()
+    def maxProfit(self, prices: List[int]=[7,1,5,3,6,4]) -> int:
+        min_price = float('inf')
+        profit = 0
+        # 每日维护最低价，最大收益=当前价-历史最低价(so far)
+        for p in prices:
+            profit = max(p-min_price, profit)
+            min_price = min(p, min_price)
+        return profit
 
 adv = CodeRunner()
-adv.longestConsecutive()
+adv.maxProfit()
+# adv.maxSubArray()
+# adv.subarraySum()
+# adv.findAnagrams( )
+# adv.threeSum(lc15_testdata)
+# adv.maxArea()
+# adv.longestConsecutive()
 # adv.groupAnagrams()
 # adv.numIdenticalPairs([1,2,3,1,1,3])
 # adv.mySqrt(2052228396)
@@ -482,10 +670,6 @@ adv.longestConsecutive()
 # adv.lengthOfLongestSubstring("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ abc")
 # adv.searchInsert()
 # adv.unique_char()
-# f = adv.fibonacci()
-# assert f==20, "Not expect value"
 # adv.removeDuplicates([0,0,1,1,1,2,2,3,3,4])
 # adv.removeElement([0,0,1,1,1,2,2,3,3,4], 1)
 # adv.strStr("hahasadnotsad", "sad")
-
-
